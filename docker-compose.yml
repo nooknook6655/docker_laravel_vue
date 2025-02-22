@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: ./frontend
+      args:
+        - TARGETARCH=arm64
+    container_name: nextjs_web
+    ports:
+      - "3000:3000"
+
+  api:
+    build:
+      context: ./backend
+      args:
+        - TARGETARCH=arm64
+    container_name: laravel_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: mariadb:latest
+    container_name: mariadb
+    platform: linux/arm64
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: marketplace
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    platform: linux/arm64
